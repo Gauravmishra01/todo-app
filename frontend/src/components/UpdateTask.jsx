@@ -16,10 +16,13 @@ export default function UpdateTask() {
   }, []);
 
   // 🔥 FIXED — ADDED credentials: "include"
-  const getTask = async (id) => {
-    let list = await fetch(`https://todo-app-ew7t.onrender.com/tasks`, {
-    credentials: "include",
+  let res = await fetch(`https://todo-app-ew7t.onrender.com/update-task/${id}`, {
+  method: "PUT",
+  credentials: "include",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify(updatedData)
 });
+
 
 
     let task = await res.json();
