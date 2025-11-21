@@ -6,10 +6,10 @@ export default function AddTask() {
   const [taskData, setTaskData] = useState({});
   const navigate = useNavigate();
 
-  const handleAddTask = async () => {
-    console.log(taskData);
+  const API = "https://todo-app-ew7f.onrender.com"; // ✅ Your correct backend URL
 
-    let res = await fetch("https://todo-app-ew7f.onrender.com/add-task", {
+  const handleAddTask = async () => {
+    let res = await fetch(`${API}/add-task`, {
       method: "POST",
       credentials: "include",
       headers: { "Content-Type": "application/json" },
