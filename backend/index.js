@@ -7,222 +7,170 @@ import cookieParser from "cookie-parser";
 
 const app = e();
 
-// Middlewares
+/* ============================
+    GLOBAL MIDDLEWARES
+=============================== */
 app.use(e.json());
 app.use(
   cors({
-    origin: "https://todo-app-five-mu-17.vercel.app",
+    origin: "https://todo-app-five-mu-17.vercel.app", // your Vercel frontend
     credentials: true,
   })
 );
 app.use(cookieParser());
 
 /* ============================
-        LOGIN
+    LOGIN
 =============================== */
 app.post("/login", async (req, resp) => {
-  const userData = req.body;
+  const { email, password } = req.body;
 
-  if (!userData.email || !userData.password) {
-    return resp.send({
-      success: false,
-      msg: "Email/Password missing",
-    });
+  if (!email || !password) {
+    return resp.send({ success: false, msg: "Email/Password missing" });
   }
 
   const db = await connection();
   const collection = await db.collection("users");
 
-  const result = await collection.findOne({
-    email: userData.email,
-    password: userData.password,
-  });
+  const user = await collection.findOne({ email, password });
 
-  if (!result) {
-    return resp.send({
-      success: false,
-      msg: "User not found",
-    });
+  if (!user) {
+    return resp.send({ success: false, msg: "Invalid email/password" });
   }
 
-  // Create JWT
-  jwt.sign(
-    { email: userData.email },
-    "Google",
-    { expiresIn: "5d" },
-    (error, token) => {
-      resp
-        .cookie("token", token, {
-          httpOnly: true,
-          secure: false,
-          sameSite: "lax",
-        })
-        .send({
-          success: true,
-          msg: "login done",
-        });
-    }
-  );
+  jwt.sign({ email }, "Google", { expiresIn: "5d" }, (error, token) => {
+    resp
+      .cookie("token", token, {
+        httpOnly: true,
+        secure: true,          // REQUIRED for Vercel + Render
+        sameSite: "none",      // REQUIRED for cross-site cookies
+      })
+      .send({ success: true, msg: "Login successful" });
+  });
 });
 
 /* ============================
-        SIGNUP
+    SIGNUP
 =============================== */
 app.post("/signup", async (req, resp) => {
-  const userData = req.body;
+  const { email, password } = req.body;
 
-  if (!userData.email || !userData.password) {
-    return resp.send({
-      success: false,
-      msg: "Email/Password missing",
-    });
+  if (!email || !password) {
+    return resp.send({ success: false, msg: "Email/Password missing" });
   }
 
   const db = await connection();
   const collection = await db.collection("users");
 
-  // Check if user exists
-  const existing = await collection.findOne({ email: userData.email });
-
+  const existing = await collection.findOne({ email });
   if (existing) {
-    return resp.send({
-      success: false,
-      msg: "Email already registered",
-    });
+    return resp.send({ success: false, msg: "Email already registered" });
   }
 
-  const result = await collection.insertOne(userData);
+  await collection.insertOne({ email, password });
 
-  jwt.sign(
-    { email: userData.email },
-    "Google",
-    { expiresIn: "5d" },
-    (error, token) => {
-      resp
-        .cookie("token", token, {
-          httpOnly: true,
-          secure: false,
-          sameSite: "lax",
-        })
-        .send({
-          success: true,
-          msg: "signup done",
-        });
-    }
-  );
+  jwt.sign({ email }, "Google", { expiresIn: "5d" }, (error, token) => {
+    resp
+      .cookie("token", token, {
+        httpOnly: true,
+        secure: true,
+        sameSite: "none",
+      })
+      .send({ success: true, msg: "Signup successful" });
+  });
 });
 
 /* ============================
-     JWT VERIFICATION
+    JWT VERIFICATION
 =============================== */
 function verifyJWTToken(req, resp, next) {
-  const token = req.cookies["token"];
+  const token = req.cookies.token;
 
   if (!token) {
-    return resp.status(401).send({
-      success: false,
-      msg: "No token provided",
-    });
+    return resp.status(401).send({ success: false, msg: "Not logged in" });
   }
 
   jwt.verify(token, "Google", (error, decoded) => {
     if (error) {
-      return resp.status(401).send({
-        success: false,
-        msg: "Invalid Token",
-      });
+      return resp.status(401).send({ success: false, msg: "Invalid token" });
     }
 
-    req.user = decoded; // IMPORTANT
+    req.user = decoded;
     next();
   });
 }
 
 /* ============================
-      ADD TASK (Protected)
+    ADD TASK (Protected)
 =============================== */
 app.post("/add-task", verifyJWTToken, async (req, resp) => {
   const db = await connection();
   const collection = await db.collection(collectionName);
 
-  const task = {
+  const newTask = {
     ...req.body,
-    userEmail: req.user.email, // from token
+    userEmail: req.user.email,
   };
 
-  const result = await collection.insertOne(task);
-
+  const result = await collection.insertOne(newTask);
   resp.send({ success: true, result });
 });
 
 /* ============================
-      GET ALL TASKS (User Only)
+    GET TASKS (Protected)
 =============================== */
 app.get("/tasks", verifyJWTToken, async (req, resp) => {
   const db = await connection();
   const collection = await db.collection(collectionName);
 
-  const result = await collection.find({ userEmail: req.user.email }).toArray();
+  const tasks = await collection
+    .find({ userEmail: req.user.email })
+    .toArray();
 
-  resp.send({
-    success: true,
-    result,
-  });
+  resp.send({ success: true, result: tasks });
 });
 
 /* ============================
-      GET SINGLE TASK
+    GET SINGLE
 =============================== */
 app.get("/task/:id", verifyJWTToken, async (req, resp) => {
   const db = await connection();
-  const id = req.params.id;
-
   const collection = await db.collection(collectionName);
 
-  const result = await collection.findOne({
-    _id: new ObjectId(id),
+  const task = await collection.findOne({
+    _id: new ObjectId(req.params.id),
     userEmail: req.user.email,
   });
 
-  if (!result) {
-    return resp.send({ success: false, msg: "Task not found" });
-  }
+  if (!task) return resp.send({ success: false, msg: "Task not found" });
+
+  resp.send({ success: true, result: task });
+});
+
+/* ============================
+    UPDATE TASK
+=============================== */
+app.put("/update-task/:id", verifyJWTToken, async (req, resp) => {
+  const db = await connection();
+  const collection = await db.collection(collectionName);
+
+  const result = await collection.updateOne(
+    { _id: new ObjectId(req.params.id), userEmail: req.user.email },
+    { $set: req.body }
+  );
 
   resp.send({ success: true, result });
 });
 
 /* ============================
-      UPDATE TASK
-=============================== */
-app.put("/update-task/:id", verifyJWTToken, async (req, resp) => {
-  try {
-    const db = await connection();
-    const id = req.params.id;
-
-    const collection = await db.collection(collectionName);
-
-    const result = await collection.updateOne(
-      { _id: new ObjectId(id), userEmail: req.user.email },
-      { $set: req.body }
-    );
-
-    resp.send({ success: true, result });
-  } catch (error) {
-    resp.status(500).send({ success: false, msg: "Server Error" });
-  }
-});
-
-/* ============================
-      DELETE TASK
+    DELETE TASK
 =============================== */
 app.delete("/delete/:id", verifyJWTToken, async (req, resp) => {
   const db = await connection();
-  const id = req.params.id;
-
   const collection = await db.collection(collectionName);
 
   const result = await collection.deleteOne({
-    _id: new ObjectId(id),
+    _id: new ObjectId(req.params.id),
     userEmail: req.user.email,
   });
 
@@ -230,33 +178,26 @@ app.delete("/delete/:id", verifyJWTToken, async (req, resp) => {
 });
 
 /* ============================
-      DELETE MULTIPLE
+    DELETE MULTIPLE
 =============================== */
 app.delete("/delete-multiple", verifyJWTToken, async (req, resp) => {
-  try {
-    const db = await connection();
-    const collection = await db.collection(collectionName);
+  const db = await connection();
+  const collection = await db.collection(collectionName);
 
-    const objectIds = req.body.map((id) => new ObjectId(id));
+  const ids = req.body.map((id) => new ObjectId(id));
 
-    const result = await collection.deleteMany({
-      _id: { $in: objectIds },
-      userEmail: req.user.email,
-    });
+  const result = await collection.deleteMany({
+    _id: { $in: ids },
+    userEmail: req.user.email,
+  });
 
-    resp.send({
-      success: true,
-      deletedCount: result.deletedCount,
-    });
-  } catch (err) {
-    resp.send({
-      success: false,
-      msg: "Error deleting tasks",
-    });
-  }
+  resp.send({ success: true, deletedCount: result.deletedCount });
 });
 
-// Server Listen
+/* ============================
+    START SERVER
+=============================== */
 app.listen(3200, () => {
   console.log("Server running on port 3200");
 });
+
