@@ -6,13 +6,15 @@ export default function List() {
   const [taskData, setTaskData] = useState([]);
   const [selectedTask, setSelectedTask] = useState([]);
 
+  const API = "https://todo-app-ew7f.onrender.com"; // ✅ Correct backend URL
+
   useEffect(() => {
     getListData();
   }, []);
 
   // ✅ Fetch All Tasks
   const getListData = async () => {
-    let res = await fetch("https://todo-app-ew7t.onrender.com/tasks", {
+    let res = await fetch(`${API}/tasks`, {
       credentials: "include",
     });
 
@@ -27,13 +29,10 @@ export default function List() {
 
   // ✅ Delete Single Task
   const deleteTask = async (id) => {
-    let res = await fetch(
-      `https://todo-app-ew7t.onrender.com/delete/${id}`,
-      {
-        method: "DELETE",
-        credentials: "include",
-      }
-    );
+    let res = await fetch(`${API}/delete/${id}`, {
+      method: "DELETE",
+      credentials: "include",
+    });
 
     let data = await res.json();
 
@@ -54,7 +53,7 @@ export default function List() {
     }
   };
 
-  // ✅ Select One Item
+  // ✅ Select Single Item
   const selectSingleItem = (id) => {
     if (selectedTask.includes(id)) {
       setSelectedTask(selectedTask.filter((x) => x !== id));
@@ -70,15 +69,12 @@ export default function List() {
       return;
     }
 
-    let res = await fetch(
-      "https://todo-app-ew7t.onrender.com/delete-multiple",
-      {
-        method: "DELETE",
-        credentials: "include",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(selectedTask),
-      }
-    );
+    let res = await fetch(`${API}/delete-multiple`, {
+      method: "DELETE",
+      credentials: "include",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(selectedTask),
+    });
 
     let data = await res.json();
 
