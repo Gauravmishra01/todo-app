@@ -13,7 +13,8 @@ export default function Signup() {
   }, []);
 
   const handleSignup = async () => {
-    let result = await fetch("http://localhost:3200/signup", {
+    let result = await fetch("https://todo-app-ew7t.onrender.com
+/signup", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
