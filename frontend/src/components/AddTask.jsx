@@ -10,21 +10,19 @@ export default function AddTask() {
     console.log(taskData);
 
     let res = await fetch("https://todo-app-ew7t.onrender.com/add-task", {
-  method: "POST",
-  credentials: "include",
-  headers: { "Content-Type": "application/json" },
-  body: JSON.stringify(taskData)
-});
+      method: "POST",
+      credentials: "include",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(taskData),
+    });
 
-
-
-    result = await result.json();
+    let result = await res.json();
 
     if (result.success) {
+      console.log("New task added");
       navigate("/");
-      console.log("new task added");
     } else {
-      alert("try after some time");
+      alert("Try after some time");
     }
   };
 
@@ -34,22 +32,20 @@ export default function AddTask() {
 
       <label>Title</label>
       <input
+        type="text"
+        placeholder="Enter task title"
         onChange={(event) =>
           setTaskData({ ...taskData, title: event.target.value })
         }
-        type="text"
-        name="title"
-        placeholder="Enter task title"
       />
 
       <label>Description</label>
       <textarea
+        rows={4}
+        placeholder="Enter task description"
         onChange={(event) =>
           setTaskData({ ...taskData, description: event.target.value })
         }
-        rows={4}
-        name="description"
-        placeholder="Enter task description"
       ></textarea>
 
       <button onClick={handleAddTask} className="submit">
