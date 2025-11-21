@@ -17,10 +17,10 @@ export default function UpdateTask() {
 
   // 🔥 FIXED — ADDED credentials: "include"
   const getTask = async (id) => {
-    let res = await fetch("https://todo-app-ew7t.onrender.com
-/task/" + id, {
-      credentials: "include",
-    });
+    let list = await fetch(`https://todo-app-ew7t.onrender.com/tasks`, {
+    credentials: "include",
+});
+
 
     let task = await res.json();
 
