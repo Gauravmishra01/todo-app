@@ -13,7 +13,7 @@ export default function Login() {
   }, []);
 
   const handleLogin = async () => {
-    let result = await fetch("https://todo-app-ew7t.onrender.com/login", {
+    let result = await fetch("https://todo-app-ew7f.onrender.com/login", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
