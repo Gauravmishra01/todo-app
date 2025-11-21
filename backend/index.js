@@ -14,8 +14,8 @@ app.use(express.json());
 app.use(
   cors({
     origin: [
-      "https://todo-60ox1ffuq-gauravmishra01s-projects.vercel.app", // your Vercel frontend
-      "https://todo-app-five-mu-17.vercel.app", // old deployment (optional)
+      "https://todo-60ox1ffuq-gauravmishra01s-projects.vercel.app",
+      "https://todo-app-five-mu-17.vercel.app"
     ],
     credentials: true,
   })
@@ -45,8 +45,8 @@ app.post("/login", async (req, resp) => {
     resp
       .cookie("token", token, {
         httpOnly: true,
-        secure: true, // required for Render + Vercel
-        sameSite: "none", // required for cross-origin cookies
+        secure: true,
+        sameSite: "none",
       })
       .send({ success: true, msg: "Login successful" });
   });
@@ -104,7 +104,7 @@ function verifyJWTToken(req, resp, next) {
 }
 
 /* ============================
-    ADD TASK (Protected)
+    ADD TASK
 =============================== */
 app.post("/add-task", verifyJWTToken, async (req, resp) => {
   const db = await connection();
@@ -120,7 +120,7 @@ app.post("/add-task", verifyJWTToken, async (req, resp) => {
 });
 
 /* ============================
-    GET TASKS (Protected)
+    GET TASKS
 =============================== */
 app.get("/tasks", verifyJWTToken, async (req, resp) => {
   const db = await connection();
@@ -132,7 +132,7 @@ app.get("/tasks", verifyJWTToken, async (req, resp) => {
 });
 
 /* ============================
-    GET A SINGLE TASK
+    GET SINGLE TASK
 =============================== */
 app.get("/task/:id", verifyJWTToken, async (req, resp) => {
   const db = await connection();
@@ -180,25 +180,4 @@ app.delete("/delete/:id", verifyJWTToken, async (req, resp) => {
 
 /* ============================
     DELETE MULTIPLE TASKS
-=============================== */
-app.delete("/delete-multiple", verifyJWTToken, async (req, resp) => {
-  const db = await connection();
-  const collection = await db.collection(collectionName);
-
-  const ids = req.body.map((id) => new ObjectId(id));
-
-  const result = await collection.deleteMany({
-    _id: { $in: ids },
-    userEmail: req.user.email,
-  });
-
-  resp.send({ success: true, deletedCount: result.deletedCount });
-});
-
-/* ============================
-    START SERVER
-=============================== */
-const PORT = process.env.PORT || 3200;
-app.listen(PORT, () => {
-  console.log(`SERVER RUNNING on PORT ${PORT}`);
-});
+===================
