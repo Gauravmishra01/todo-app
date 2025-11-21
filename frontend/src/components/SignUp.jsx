@@ -6,6 +6,8 @@ export default function Signup() {
   const [userData, setUserData] = useState({ email: "", password: "" });
   const navigate = useNavigate();
 
+  const API = "https://todo-app-ew7f.onrender.com"; // ✅ Correct backend URL
+
   useEffect(() => {
     if (localStorage.getItem("login")) {
       navigate("/");
@@ -13,16 +15,16 @@ export default function Signup() {
   }, []);
 
   const handleSignup = async () => {
-    let result = await fetch("https://todo-app-ew7f.onrender.com/signup", {
+    let res = await fetch(`${API}/signup`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      credentials: "include", // VERY IMPORTANT FOR COOKIES
+      credentials: "include", // 🔥 REQUIRED FOR COOKIES
       body: JSON.stringify(userData),
     });
 
-    result = await result.json();
+    let result = await res.json();
 
     if (result.success) {
       localStorage.setItem("login", userData.email);
@@ -40,14 +42,18 @@ export default function Signup() {
       <input
         type="email"
         placeholder="Enter Email"
-        onChange={(e) => setUserData({ ...userData, email: e.target.value })}
+        onChange={(e) =>
+          setUserData({ ...userData, email: e.target.value })
+        }
       />
 
       <label>Password</label>
       <input
         type="password"
         placeholder="Enter Password"
-        onChange={(e) => setUserData({ ...userData, password: e.target.value })}
+        onChange={(e) =>
+          setUserData({ ...userData, password: e.target.value })
+        }
       />
 
       <button onClick={handleSignup} className="submit">
