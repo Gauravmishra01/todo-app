@@ -1,6 +1,6 @@
-import { useEffect, useState } from "react";
-import "../style/addtask.css";
+import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import "../style/addtask.css";
 
 export default function Login() {
   const [userData, setUserData] = useState({ email: "", password: "" });
@@ -12,13 +12,15 @@ export default function Login() {
     }
   }, []);
 
-  let res = await fetch("https://todo-app-ew7t.onrender.com/login", {
-  method: "POST",
-  credentials: "include",
-  headers: { "Content-Type": "application/json" },
-  body: JSON.stringify(loginData)
-});
-
+  const handleLogin = async () => {
+    let result = await fetch("https://todo-app-ew7t.onrender.com/login", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      credentials: "include",  // IMPORTANT for cookies
+      body: JSON.stringify(userData),
+    });
 
     result = await result.json();
 
@@ -26,7 +28,7 @@ export default function Login() {
       localStorage.setItem("login", userData.email);
       navigate("/");
     } else {
-      alert("Invalid email or password. Try again.");
+      alert(result.msg || "Login failed. Try again.");
     }
   };
 
@@ -36,20 +38,16 @@ export default function Login() {
 
       <label>Email</label>
       <input
-        onChange={(event) =>
-          setUserData({ ...userData, email: event.target.value })
-        }
         type="email"
         placeholder="Enter Email"
+        onChange={(e) => setUserData({ ...userData, email: e.target.value })}
       />
 
       <label>Password</label>
       <input
-        onChange={(event) =>
-          setUserData({ ...userData, password: event.target.value })
-        }
         type="password"
         placeholder="Enter Password"
+        onChange={(e) => setUserData({ ...userData, password: e.target.value })}
       />
 
       <button onClick={handleLogin} className="submit">
@@ -57,7 +55,7 @@ export default function Login() {
       </button>
 
       <Link className="log" to="/signup">
-        SignUp
+        Signup
       </Link>
     </div>
   );
