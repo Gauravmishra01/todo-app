@@ -11,7 +11,8 @@ export default function List() {
   }, []);
 
   const getListData = async () => {
-    let list = await fetch("http://localhost:3200/tasks", {
+    let list = await fetch("https://todo-app-ew7t.onrender.com
+/tasks", {
       credentials: "include",
     });
     list = await list.json();
