@@ -11,9 +11,11 @@ export default function UpdateTask() {
   const navigate = useNavigate();
   const { id } = useParams();
 
+  const API = "https://todo-app-ew7f.onrender.com"; // ✅ Correct backend URL
+
   // ✅ Fetch existing task
   const getTask = async (tid) => {
-    let res = await fetch(`https://todo-app-ew7t.onrender.com/task/${tid}`, {
+    let res = await fetch(`${API}/task/${tid}`, {
       credentials: "include",
     });
 
@@ -36,15 +38,12 @@ export default function UpdateTask() {
 
   // ✅ Update Task
   const updateTask = async () => {
-    let res = await fetch(
-      `https://todo-app-ew7t.onrender.com/update-task/${id}`,
-      {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify(taskData),
-      }
-    );
+    let res = await fetch(`${API}/update-task/${id}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      body: JSON.stringify(taskData),
+    });
 
     let task = await res.json();
 
