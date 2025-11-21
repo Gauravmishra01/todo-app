@@ -17,7 +17,8 @@ export default function UpdateTask() {
 
   // 🔥 FIXED — ADDED credentials: "include"
   const getTask = async (id) => {
-    let res = await fetch("http://localhost:3200/task/" + id, {
+    let res = await fetch("https://todo-app-ew7t.onrender.com
+/task/" + id, {
       credentials: "include",
     });
 
