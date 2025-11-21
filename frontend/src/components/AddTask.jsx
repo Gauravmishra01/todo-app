@@ -9,15 +9,15 @@ export default function AddTask() {
   const handleAddTask = async () => {
     console.log(taskData);
 
-    let result = await fetch("https://todo-app-ew7t.onrender.com
-/add-task", {
-      method: "POST",
-      body: JSON.stringify(taskData),
-      credentials: "include",
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
+    let result = await fetch("https://todo-app-ew7t.onrender.com/add-task", {
+    method: "POST",
+    headers: {
+        "Content-Type": "application/json"
+    },
+    body: JSON.stringify(taskData),
+    credentials: "include"
+});
+
 
     result = await result.json();
 
