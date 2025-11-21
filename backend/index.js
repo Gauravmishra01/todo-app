@@ -16,7 +16,7 @@ app.use(
   cors({
     origin: [
       "https://todo-app-five-mu-17.vercel.app", // ✔ Correct frontend
-      "http://localhost:5173"                    // ✔ Local development
+      "http://localhost:5173"                   // ✔ Local development
     ],
     methods: ["GET", "POST", "PUT", "DELETE"],
     credentials: true,
@@ -48,8 +48,8 @@ app.post("/login", async (req, resp) => {
     resp
       .cookie("token", token, {
         httpOnly: true,
-        secure: true,        // ✔ Required for Vercel+Render HTTPS
-        sameSite: "none",    // ✔ Required for cross-site cookies
+        secure: true,
+        sameSite: "none",
       })
       .send({ success: true, msg: "Login successful" });
   });
@@ -111,4 +111,97 @@ function verifyJWTToken(req, resp, next) {
 =============================== */
 app.post("/add-task", verifyJWTToken, async (req, resp) => {
   const db = await connection();
-  const collection = await db.col
+  const collection = await db.collection(collectionName);
+
+  const newTask = {
+    ...req.body,
+    userEmail: req.user.email,
+  };
+
+  const result = await collection.insertOne(newTask);
+  resp.send({ success: true, result });
+});
+
+/* ============================
+    GET TASKS
+=============================== */
+app.get("/tasks", verifyJWTToken, async (req, resp) => {
+  const db = await connection();
+  const collection = await db.collection(collectionName);
+
+  const tasks = await collection.find({ userEmail: req.user.email }).toArray();
+
+  resp.send({ success: true, result: tasks });
+});
+
+/* ============================
+    GET SINGLE TASK
+=============================== */
+app.get("/task/:id", verifyJWTToken, async (req, resp) => {
+  const db = await connection();
+  const collection = await db.collection(collectionName);
+
+  const task = await collection.findOne({
+    _id: new ObjectId(req.params.id),
+    userEmail: req.user.email,
+  });
+
+  if (!task) return resp.send({ success: false, msg: "Task not found" });
+
+  resp.send({ success: true, result: task });
+});
+
+/* ============================
+    UPDATE TASK
+=============================== */
+app.put("/update-task/:id", verifyJWTToken, async (req, resp) => {
+  const db = await connection();
+  const collection = await db.collection(collectionName);
+
+  const result = await collection.updateOne(
+    { _id: new ObjectId(req.params.id), userEmail: req.user.email },
+    { $set: req.body }
+  );
+
+  resp.send({ success: true, result });
+});
+
+/* ============================
+    DELETE TASK
+=============================== */
+app.delete("/delete/:id", verifyJWTToken, async (req, resp) => {
+  const db = await connection();
+  const collection = await db.collection(collectionName);
+
+  const result = await collection.deleteOne({
+    _id: new ObjectId(req.params.id),
+    userEmail: req.user.email,
+  });
+
+  resp.send({ success: true, result });
+});
+
+/* ============================
+    DELETE MULTIPLE TASKS
+=============================== */
+app.delete("/delete-multiple", verifyJWTToken, async (req, resp) => {
+  const db = await connection();
+  const collection = await db.collection(collectionName);
+
+  const ids = req.body.map((id) => new ObjectId(id));
+
+  const result = await collection.deleteMany({
+    _id: { $in: ids },
+    userEmail: req.user.email,
+  });
+
+  resp.send({ success: true, deletedCount: result.deletedCount });
+});
+
+/* ============================
+    SERVER
+=============================== */
+const PORT = process.env.PORT || 3200;
+app.listen(PORT, () => {
+  console.log(`SERVER RUNNING on PORT ${PORT}`);
+});
