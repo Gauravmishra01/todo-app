@@ -12,16 +12,13 @@ export default function Login() {
     }
   }, []);
 
-  const handleLogin = async () => {
-    let result = await fetch("https://todo-app-ew7t.onrender.com
-/login", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(userData),
-      credentials: "include", // VERY IMPORTANT
-    });
+  let res = await fetch("https://todo-app-ew7t.onrender.com/login", {
+  method: "POST",
+  credentials: "include",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify(loginData)
+});
+
 
     result = await result.json();
 
