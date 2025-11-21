@@ -10,35 +10,41 @@ export default function List() {
     getListData();
   }, []);
 
+  // ✅ Fetch All Tasks
   const getListData = async () => {
-  let res = await fetch("https://todo-app-ew7t.onrender.com/tasks", {
-  credentials: "include",
-});
+    let res = await fetch("https://todo-app-ew7t.onrender.com/tasks", {
+      credentials: "include",
+    });
 
-    list = await list.json();
+    let data = await res.json();
 
-    if (list.success) {
-      setTaskData(list.result);
+    if (data.success) {
+      setTaskData(data.result);
     } else {
       alert("Try after some time");
     }
   };
 
+  // ✅ Delete Single Task
   const deleteTask = async (id) => {
-    let item = await fetch("http://localhost:3200/delete/" + id, {
-      method: "delete",
-      credentials: "include",
-    });
+    let res = await fetch(
+      `https://todo-app-ew7t.onrender.com/delete/${id}`,
+      {
+        method: "DELETE",
+        credentials: "include",
+      }
+    );
 
-    item = await item.json();
+    let data = await res.json();
 
-    if (item.success) {
+    if (data.success) {
       getListData();
     } else {
       alert("Try after some time");
     }
   };
 
+  // ✅ Select All Items
   const selectAll = (event) => {
     if (event.target.checked) {
       let allIds = taskData.map((item) => item._id);
@@ -48,6 +54,7 @@ export default function List() {
     }
   };
 
+  // ✅ Select One Item
   const selectSingleItem = (id) => {
     if (selectedTask.includes(id)) {
       setSelectedTask(selectedTask.filter((x) => x !== id));
@@ -56,24 +63,28 @@ export default function List() {
     }
   };
 
+  // ✅ Delete Multiple Items
   const deleteMultiple = async () => {
     if (selectedTask.length === 0) {
       alert("No tasks selected!");
       return;
     }
 
-    let response = await fetch("http://localhost:3200/delete-multiple", {
-      method: "DELETE",
-      credentials: "include",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(selectedTask),
-    });
+    let res = await fetch(
+      "https://todo-app-ew7t.onrender.com/delete-multiple",
+      {
+        method: "DELETE",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(selectedTask),
+      }
+    );
 
-    const result = await response.json();
+    let data = await res.json();
 
-    if (result.success) {
-      getListData(); // refresh list
-      setSelectedTask([]); // clear selection
+    if (data.success) {
+      getListData();
+      setSelectedTask([]);
     } else {
       alert("Error deleting tasks");
     }
@@ -83,7 +94,6 @@ export default function List() {
     <div className="list-container">
       <h1>To Do List</h1>
 
-      {/* Delete Multiple Button */}
       <button onClick={deleteMultiple} className="delete-item delete-multiple">
         Delete
       </button>
