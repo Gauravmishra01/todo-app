@@ -84,7 +84,7 @@ app.post("/signup", async (req, resp) => {
 });
 
 /* ============================
-    JWT VERIFICATION
+    JWT VERIFY
 =============================== */
 function verifyJWTToken(req, resp, next) {
   const token = req.cookies.token;
@@ -180,4 +180,25 @@ app.delete("/delete/:id", verifyJWTToken, async (req, resp) => {
 
 /* ============================
     DELETE MULTIPLE TASKS
-===================
+=============================== */
+app.delete("/delete-multiple", verifyJWTToken, async (req, resp) => {
+  const db = await connection();
+  const collection = await db.collection(collectionName);
+
+  const ids = req.body.map((id) => new ObjectId(id));
+
+  const result = await collection.deleteMany({
+    _id: { $in: ids },
+    userEmail: req.user.email,
+  });
+
+  resp.send({ success: true, deletedCount: result.deletedCount });
+});
+
+/* ============================
+    SERVER
+=============================== */
+const PORT = process.env.PORT || 3200;
+app.listen(PORT, () => {
+  console.log(`SERVER RUNNING on PORT ${PORT}`);
+});
