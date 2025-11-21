@@ -11,26 +11,18 @@ export default function UpdateTask() {
   const navigate = useNavigate();
   const { id } = useParams();
 
-  useEffect(() => {
-    getTask(id);
-  }, []);
-
-  // 🔥 FIXED — ADDED credentials: "include"
-  let res = await fetch(`https://todo-app-ew7t.onrender.com/update-task/${id}`, {
-  method: "PUT",
-  credentials: "include",
-  headers: { "Content-Type": "application/json" },
-  body: JSON.stringify(updatedData)
-});
-
-
+  // ✅ Fetch existing task
+  const getTask = async (tid) => {
+    let res = await fetch(`https://todo-app-ew7t.onrender.com/task/${tid}`, {
+      credentials: "include",
+    });
 
     let task = await res.json();
 
     if (task.success) {
       setTaskData({
-        title: task.result.title || "",
-        description: task.result.description || "",
+        title: task.result.title,
+        description: task.result.description,
       });
     } else {
       alert("Unable to load task. Please login again.");
@@ -38,16 +30,21 @@ export default function UpdateTask() {
     }
   };
 
-  // 🔥 FIXED — ADDED credentials: "include"
+  useEffect(() => {
+    getTask(id);
+  }, []);
+
+  // ✅ Update Task
   const updateTask = async () => {
-    let res = await fetch("http://localhost:3200/update-task/" + id, {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      credentials: "include", // VERY IMPORTANT
-      body: JSON.stringify(taskData),
-    });
+    let res = await fetch(
+      `https://todo-app-ew7t.onrender.com/update-task/${id}`,
+      {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify(taskData),
+      }
+    );
 
     let task = await res.json();
 
