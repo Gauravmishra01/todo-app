@@ -1,19 +1,22 @@
-import e from "express";
+import express from "express";
 import { collectionName, connection } from "./dbconfig.js";
 import cors from "cors";
 import { ObjectId } from "mongodb";
 import jwt from "jsonwebtoken";
 import cookieParser from "cookie-parser";
 
-const app = e();
+const app = express();
 
 /* ============================
     GLOBAL MIDDLEWARES
 =============================== */
-app.use(e.json());
+app.use(express.json());
 app.use(
   cors({
-    origin: "https://todo-app-five-mu-17.vercel.app", // your Vercel frontend
+    origin: [
+      "https://todo-60ox1ffuq-gauravmishra01s-projects.vercel.app", // your Vercel frontend
+      "https://todo-app-five-mu-17.vercel.app", // old deployment (optional)
+    ],
     credentials: true,
   })
 );
@@ -42,8 +45,8 @@ app.post("/login", async (req, resp) => {
     resp
       .cookie("token", token, {
         httpOnly: true,
-        secure: true,          // REQUIRED for Vercel + Render
-        sameSite: "none",      // REQUIRED for cross-site cookies
+        secure: true, // required for Render + Vercel
+        sameSite: "none", // required for cross-origin cookies
       })
       .send({ success: true, msg: "Login successful" });
   });
@@ -123,15 +126,13 @@ app.get("/tasks", verifyJWTToken, async (req, resp) => {
   const db = await connection();
   const collection = await db.collection(collectionName);
 
-  const tasks = await collection
-    .find({ userEmail: req.user.email })
-    .toArray();
+  const tasks = await collection.find({ userEmail: req.user.email }).toArray();
 
   resp.send({ success: true, result: tasks });
 });
 
 /* ============================
-    GET SINGLE
+    GET A SINGLE TASK
 =============================== */
 app.get("/task/:id", verifyJWTToken, async (req, resp) => {
   const db = await connection();
@@ -178,7 +179,7 @@ app.delete("/delete/:id", verifyJWTToken, async (req, resp) => {
 });
 
 /* ============================
-    DELETE MULTIPLE
+    DELETE MULTIPLE TASKS
 =============================== */
 app.delete("/delete-multiple", verifyJWTToken, async (req, resp) => {
   const db = await connection();
@@ -197,7 +198,7 @@ app.delete("/delete-multiple", verifyJWTToken, async (req, resp) => {
 /* ============================
     START SERVER
 =============================== */
-app.listen(3200, () => {
-  console.log("Server running on port 3200");
+const PORT = process.env.PORT || 3200;
+app.listen(PORT, () => {
+  console.log(`SERVER RUNNING on PORT ${PORT}`);
 });
-
