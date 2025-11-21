@@ -11,7 +11,7 @@ const app = e();
 app.use(e.json());
 app.use(
   cors({
-    origin: "http://localhost:5173",
+    origin: "https://your-frontend.vercel.app",
     credentials: true,
   })
 );
