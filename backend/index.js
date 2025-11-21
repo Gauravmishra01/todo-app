@@ -14,12 +14,13 @@ app.use(express.json());
 app.use(
   cors({
     origin: [
-      "https://todo-60oxxlfuq-gauravmishra01s-projects.vercel.app", // ✅ your correct frontend URL
-      "http://localhost:5173"                                      // ⚡ for development
+      "https://todo-app-five-mu-17.vercel.app",  // NEW front-end URL
+      "http://localhost:5173"                    // For local dev
     ],
     credentials: true,
   })
 );
+
 app.use(cookieParser());
 
 /* ============================
