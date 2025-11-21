@@ -11,7 +11,7 @@ const app = e();
 app.use(e.json());
 app.use(
   cors({
-    origin: "https://your-frontend.vercel.app",
+    origin: "https://todo-app-five-mu-17.vercel.app",
     credentials: true,
   })
 );
