@@ -13,14 +13,13 @@ export default function Signup() {
   }, []);
 
   const handleSignup = async () => {
-    let result = await fetch("https://todo-app-ew7t.onrender.com
-/signup", {
+    let result = await fetch("https://todo-app-ew7t.onrender.com/signup", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
+      credentials: "include", // VERY IMPORTANT FOR COOKIES
       body: JSON.stringify(userData),
-      credentials: "include", // IMPORTANT
     });
 
     result = await result.json();
