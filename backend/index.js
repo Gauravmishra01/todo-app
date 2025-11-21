@@ -14,8 +14,8 @@ app.use(express.json());
 app.use(
   cors({
     origin: [
-      "https://todo-60ox1ffuq-gauravmishra01s-projects.vercel.app",
-      "https://todo-app-five-mu-17.vercel.app"
+      "https://todo-60oxxlfuq-gauravmishra01s-projects.vercel.app", // ✅ your correct frontend URL
+      "http://localhost:5173"                                      // ⚡ for development
     ],
     credentials: true,
   })
